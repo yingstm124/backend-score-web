@@ -1,0 +1,41 @@
+version: '3.8'
+ 
+services:
+  client-web:
+    image: node:14-alpine
+    ports: 
+    - 80:3001
+    build:
+      context: ./
+      dockerfile: Dockerfile
+  score-manage:
+    image: ${DOCKER_REGISTRY-}my_docker_flask
+    ports: 
+      - 5000:5000
+    build:
+      context: ./
+      dockerfile: Dockerfile
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234567890
+      MYSQL_DATABASE: Score_Manage
+    ports:
+      - "6033:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+volumes:
+  dbdata:
